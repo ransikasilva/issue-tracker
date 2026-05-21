@@ -214,12 +214,12 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setShowFilters(!showFilters)} className="!px-4">
+          <div className="flex gap-3 items-center">
+            <Button variant="ghost" size="sm" onClick={() => setShowFilters(!showFilters)} className="!px-4 !h-10">
               <Filter size={18} />
             </Button>
             <div className="relative group">
-              <Button variant="ghost" size="sm" className="!px-4">
+              <Button variant="ghost" size="sm" className="!px-4 !h-10">
                 <Download size={18} />
               </Button>
               <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 hidden group-hover:block z-10 overflow-hidden">
@@ -237,7 +237,7 @@ export const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
-            <Button variant="primary" size="md" onClick={() => setIsCreateModalOpen(true)} className="!bg-black hover:!bg-zinc-800 !px-5">
+            <Button variant="primary" size="sm" onClick={() => setIsCreateModalOpen(true)} className="!bg-black hover:!bg-zinc-800 !px-5 !h-10">
               <Plus size={18} className="mr-2" />
               New Issue
             </Button>
