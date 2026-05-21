@@ -101,20 +101,29 @@ class Server {
       // Connect to database
       await Database.connect();
 
-      // Start listening
-      this.app.listen(this.port, () => {
-        console.log(`\n🚀 Server running on port ${this.port}`);
-        console.log(`📍 Environment: ${process.env.NODE_ENV}`);
-        console.log(`🔗 API: http://localhost:${this.port}/api`);
-        console.log(`💚 Health check: http://localhost:${this.port}/health\n`);
-      });
+      // Start listening (only in non-serverless environment)
+      if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+        this.app.listen(this.port, () => {
+          console.log(`\n🚀 Server running on port ${this.port}`);
+          console.log(`📍 Environment: ${process.env.NODE_ENV}`);
+          console.log(`🔗 API: http://localhost:${this.port}/api`);
+          console.log(`💚 Health check: http://localhost:${this.port}/health\n`);
+        });
+      }
     } catch (error) {
       console.error('Failed to start server:', error);
       process.exit(1);
     }
   }
+
+  getApp(): Application {
+    return this.app;
+  }
 }
 
-// Start the server
+// Initialize server
 const server = new Server();
 server.start();
+
+// Export for Vercel
+export default server.getApp();
