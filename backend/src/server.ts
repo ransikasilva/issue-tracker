@@ -94,22 +94,20 @@ class Server {
   }
 
   /**
-   * Start the server
+   * Start the server (for local development only)
    */
   async start(): Promise<void> {
     try {
       // Connect to database
       await Database.connect();
 
-      // Start listening (only in non-serverless environment)
-      if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-        this.app.listen(this.port, () => {
-          console.log(`\n🚀 Server running on port ${this.port}`);
-          console.log(`📍 Environment: ${process.env.NODE_ENV}`);
-          console.log(`🔗 API: http://localhost:${this.port}/api`);
-          console.log(`💚 Health check: http://localhost:${this.port}/health\n`);
-        });
-      }
+      // Start listening
+      this.app.listen(this.port, () => {
+        console.log(`\n🚀 Server running on port ${this.port}`);
+        console.log(`📍 Environment: ${process.env.NODE_ENV}`);
+        console.log(`🔗 API: http://localhost:${this.port}/api`);
+        console.log(`💚 Health check: http://localhost:${this.port}/health\n`);
+      });
     } catch (error) {
       console.error('Failed to start server:', error);
       process.exit(1);
@@ -128,10 +126,31 @@ class Server {
 
 // Initialize server
 const server = new Server();
-server.start();
 
-// Export handler for Vercel with database connection
+// For local development, start the server normally
+if (!process.env.VERCEL) {
+  server.start();
+}
+
+// Create a connection promise for serverless
+let dbConnectionPromise: Promise<void> | null = null;
+
+// Export handler for Vercel
 export default async (req: any, res: any) => {
-  await Database.connect();
-  return server.getApp()(req, res);
+  try {
+    // Ensure database connection before processing requests
+    if (!dbConnectionPromise) {
+      dbConnectionPromise = Database.connect();
+    }
+    await dbConnectionPromise;
+
+    // Get the Express app and handle the request
+    const app = server.getApp();
+    app(req, res);
+  } catch (error) {
+    console.error('Error in serverless handler:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 };
