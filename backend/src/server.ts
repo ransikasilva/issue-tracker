@@ -140,7 +140,11 @@ export default async (req: any, res: any) => {
   try {
     // Ensure database connection before processing requests
     if (!dbConnectionPromise) {
-      dbConnectionPromise = Database.connect();
+      dbConnectionPromise = Database.connect().catch((err) => {
+        // Reset promise on failure so next request tries again
+        dbConnectionPromise = null;
+        throw err;
+      });
     }
     await dbConnectionPromise;
 
