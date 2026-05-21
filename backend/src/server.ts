@@ -119,11 +119,19 @@ class Server {
   getApp(): Application {
     return this.app;
   }
+
+  async getAppWithDb(): Promise<Application> {
+    await Database.connect();
+    return this.app;
+  }
 }
 
 // Initialize server
 const server = new Server();
 server.start();
 
-// Export for Vercel
-export default server.getApp();
+// Export handler for Vercel with database connection
+export default async (req: any, res: any) => {
+  await Database.connect();
+  return server.getApp()(req, res);
+};
